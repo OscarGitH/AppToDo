@@ -13,6 +13,7 @@
         <div>
           <label for="endDate">Date de fin :</label>
           <input v-model="task.endDate" id="endDate" type="date" required />
+          <span v-if="isEndDateInvalid" class="error-message">La date de fin doit être postérieure à la date de début.</span>
         </div>
         <div>
           <label for="status">Etat :</label>
@@ -56,10 +57,6 @@
       }
     },
     methods: {
-      submitTask() {
-        this.$emit('add-task', { ...this.task });
-        this.clearForm();
-      },
       clearForm() {
         this.task = {
           description: '',
@@ -71,7 +68,20 @@
       },
       close() {
         this.$emit('close-sidebar');
+      },
+      isEndDateInvalid() {
+        return new Date(this.task.endDate) <= new Date(this.task.startDate);
+      },
+      submitTask() {
+        if (this.isEndDateInvalid()) {
+          alert("La date de fin doit être postérieure à la date de début.");
+          return; // Empêche la soumission de la tâche si la date de fin est invalide
+        }
+        
+        this.$emit('add-task', { ...this.task });
+        this.clearForm();
       }
+
     }
   }
   </script>
@@ -127,15 +137,19 @@
   }
 
   #notes {
-    max-width: 100%; /* Largeur maximale du textarea */
-    width: calc(100% - 12px); /* Largeur du textarea - padding */
-    resize: vertical; /* Autorise seulement le redimensionnement vertical */
+    max-width: 100%;
+    width: calc(100% - 12px);
+    resize: vertical;
   }
 
   .task-form textarea {
-    width: calc(100% - 12px); /* Prendre en compte le padding */
+    width: calc(100% - 12px);
     padding: 5px;
-    resize: vertical; /* Autoriser le redimensionnement vertical */
+    resize: vertical;
+  }
+
+  .error-message {
+    font-size: 0.8rem;
   }
   </style>
   

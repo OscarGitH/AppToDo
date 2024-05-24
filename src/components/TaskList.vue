@@ -51,6 +51,7 @@
           <p>Date de début : {{ formatDate(task.startDate) }}</p>
           <p>Date de fin : {{ formatDate(task.endDate) }}</p>
           <p>Priorité : {{ task.priority }}</p>
+          <p v-if="task.notes">Notes : {{ task.notes }}</p>
         </div>
       </li>
     </ul>
