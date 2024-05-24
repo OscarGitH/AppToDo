@@ -19,7 +19,7 @@ export default {
 .footer {
   background-color: #f5f5f5;
   border-top: 1px solid #dbdbdb;
-  padding: 1rem;
+  padding: 0.5rem;
 }
 
 .footer p {

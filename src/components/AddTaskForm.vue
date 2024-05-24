@@ -1,6 +1,6 @@
 <template>
     <div class="task-form">
-      <h3>Ajouter une tâche</h3>
+      <h3>Ajouter une tâche <span class="close" @click="close">&#10006;</span></h3>
       <form @submit.prevent="submitTask">
         <div>
           <label for="description">Description :</label>
@@ -17,7 +17,7 @@
         <div>
           <label for="status">Etat :</label>
           <select v-model="task.status" id="status" required>
-            <option value="À faire">À faire</option>
+            <option value="À faire" selected>À faire</option>
             <option value="En cours">En cours</option>
             <option value="Terminée">Terminée</option>
           </select>
@@ -30,6 +30,11 @@
             <option value="Basse">Basse</option>
           </select>
         </div>
+        <div>
+          <label for="tags">Notes (optionnel) :</label>
+          <textarea v-model="task.notes" id="notes" rows="4"></textarea>
+        </div>
+
         <button type="submit">Ajouter</button>
         <button type="button" @click="close">Annuler</button>
       </form>
@@ -45,8 +50,8 @@
           description: '',
           startDate: '',
           endDate: '',
-          status: 'To Do',
-          priority: 'Medium'
+          status: 'À faire',
+          priority: 'Moyenne',
         }
       }
     },
@@ -60,8 +65,8 @@
           description: '',
           startDate: '',
           endDate: '',
-          status: 'To Do',
-          priority: 'Medium'
+          status: 'À faire',
+          priority: 'Moyenne'
         };
       },
       close() {
@@ -113,6 +118,24 @@
   
   .task-form button:hover {
     background-color: #a541fe;
+  }
+
+  .close {
+    float: right;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+
+  #notes {
+    max-width: 100%; /* Largeur maximale du textarea */
+    width: calc(100% - 12px); /* Largeur du textarea - padding */
+    resize: vertical; /* Autorise seulement le redimensionnement vertical */
+  }
+
+  .task-form textarea {
+    width: calc(100% - 12px); /* Prendre en compte le padding */
+    padding: 5px;
+    resize: vertical; /* Autoriser le redimensionnement vertical */
   }
   </style>
   
