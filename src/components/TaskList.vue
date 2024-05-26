@@ -22,27 +22,32 @@
     </div>
 
     <div class="hide-finished">
-      <input type="checkbox" id="hide-finished" v-model="hideFinished" />
+      <input type="checkbox" id="hide-finished" v-model="hideFinished"/>
       <label for="hide-finished">Masquer les tâches terminées</label>
     </div>
 
     <div class="expand-buttons">
-      <button @click="toggleAllDetails">{{ allDetailsVisible ? 'Fermer toutes les tâches &times;' : 'Ouvrir toutes les tâches &plus;' }}</button>
+      <button @click="toggleAllDetails">
+        {{ allDetailsVisible ? 'Fermer toutes les tâches &times;' : 'Ouvrir toutes les tâches &plus;' }}
+      </button>
     </div>
     <ul>
       <li v-for="task in sortedTasks" :key="task.id" @click="toggleDetails(task.id)">
         <div class="task-header">
           <h4>
-          <span :class="getTaskStatusColor(task.status)" @click.stop="changeTaskStatus(task)" class="task-status">{{ task.status }}</span>
-          <span class="task-description">{{ task.description }}</span>
-          <span class="task-details">{{ formatDate(task.endDate) }} - {{ task.priority }}</span>
-        </h4>
+            <span :class="getTaskStatusColor(task.status)" @click.stop="changeTaskStatus(task)"
+                  class="task-status">{{ task.status }}</span>
+            <span class="task-description">{{ task.description }}</span>
+            <span class="task-details">{{ formatDate(task.endDate) }} - {{ task.priority }}</span>
+          </h4>
 
           <div class="task-actions">
             <button @click.stop="confirmDeleteTask(task.id)" class="delete-task">
               <span class='delete-task'>Supprimer cette tâche</span>
             </button>
-            <img src="../assets/mdi--chevron-down.svg" alt="Toggle details" :class="{ rotate: selectedTask === task.id || allDetailsVisible }" />
+            <button @click.stop="editTask(task)" class="edit-task">Modifier</button>
+            <img src="../assets/mdi--chevron-down.svg" alt="Toggle details"
+                 :class="{ rotate: selectedTask === task.id || allDetailsVisible }"/>
           </div>
         </div>
 
@@ -57,7 +62,15 @@
     </ul>
     <v-btn class="add-task" @click="toggleAddTaskSidebar">&#43; Ajouter une tâche</v-btn>
     <aside v-if="showAddTaskSidebar" class="add-task-sidebar">
-      <AddTaskForm @add-task="addTask" @close-sidebar="showAddTaskSidebar = false" />
+      <AddTaskForm
+          v-if="taskToEdit"
+          :task="taskToEdit"
+          @edit-task="updateTask"
+          @close-sidebar="closeTaskSidebar"/>
+      <AddTaskForm
+          v-else
+          @add-task="addTask"
+          @close-sidebar="closeTaskSidebar"/>
     </aside>
   </div>
 </template>
@@ -73,9 +86,17 @@ export default {
   data() {
     return {
       tasks: [
-        { id: 1, description: 'Tache Exemple', startDate: '2024-01-01', endDate: '2024-01-10', status: 'Terminée', priority: 'Haute' },
-        ],
+        {
+          id: 1,
+          description: 'Tache Exemple',
+          startDate: '2024-01-01',
+          endDate: '2024-01-10',
+          status: 'Terminée',
+          priority: 'Haute'
+        },
+      ],
       showAddTaskSidebar: false,
+      taskToEdit: null,
       selectedTask: null,
       allDetailsVisible: false,
       sortCriteria: {
@@ -97,7 +118,7 @@ export default {
   watch: {
     // Surveiller les changements dans les tâches et mettre à jour le stockage local
     tasks: {
-      handler: function(updatedTasks) {
+      handler: function (updatedTasks) {
         localStorage.setItem('tasks', JSON.stringify(updatedTasks));
       },
       deep: true
@@ -109,7 +130,24 @@ export default {
       this.tasks.push(newTask);
       this.showAddTaskSidebar = false;
     },
+    editTask(task) {
+      this.taskToEdit = {...task};
+      this.showAddTaskSidebar = true;
+    },
+    updateTask(updatedTask) {
+      const index = this.tasks.findIndex(task => task.id === updatedTask.id);
+      if (index !== -1) {
+        this.tasks.splice(index, 1, updatedTask); // Remplacer la tâche modifiée dans la liste des tâches
+      }
+      this.showAddTaskSidebar = false;
+      this.taskToEdit = null;
+    },
+    closeTaskSidebar() {
+      this.showAddTaskSidebar = false;
+      this.taskToEdit = null;
+    },
     toggleAddTaskSidebar() {
+      this.taskToEdit = null;
       this.showAddTaskSidebar = !this.showAddTaskSidebar;
     },
     toggleDetails(taskId) {
@@ -220,277 +258,277 @@ export default {
 </script>
 
 <style>
-  /* Styles spécifiques au composant TaskList */
-  .infos p:last-child {
-    margin-bottom: 1em;
-  }
+/* Styles spécifiques au composant TaskList */
+.infos p:last-child {
+  margin-bottom: 1em;
+}
 
-  .task-list {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-  }
+.task-list {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
 
-  .task-list h4 {
-    margin-bottom: 0;
-  }
+.task-list h4 {
+  margin-bottom: 0;
+}
 
-  .task-list ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 1rem 0 2rem 0;
-  }
+.task-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 1rem 0 2rem 0;
+}
 
+.task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-description {
+  display: inline;
+  margin-right: 10px;
+}
+
+.details {
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.content li + li {
+  margin-top: 0.5rem;
+}
+
+.task-list li {
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.task-list li:last-child {
+  border-bottom: none;
+}
+
+.task-list .task-status {
+  user-select: none;
+}
+
+.add-task-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 33%;
+  background-color: #fff;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.add-task, .edit-task {
+  padding: 7.5px 15px;
+  width: 100px;
+  background-color: #3f7ffe;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+.add-task:hover, .edit-task:hover {
+  background-color: #a541fe;
+}
+
+.rotate {
+  transform: rotate(180deg);
+}
+
+.task-todo-color {
+  background-color: #3f7ffe;
+  padding: 0.25rem;
+  color: white;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.task-in-progress-color {
+  background-color: #f7b500;
+  padding: 0.25rem;
+  color: white;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.task-finished-color {
+  background-color: #00b74a;
+  padding: 0.25rem;
+  color: white;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.task-status {
+  margin-right: 1rem;
+  width: 100px;
+  display: inline-block;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sort-buttons button {
+  padding: 5px 10px;
+  background-color: #3f7ffe;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sort-buttons button:hover {
+  background-color: #a541fe;
+}
+
+.sort-buttons .active {
+  background-color: #a541fe;
+}
+
+.expand-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.expand-buttons button {
+  padding: 5px 10px;
+  background-color: #3f7ffe;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.expand-buttons button:hover {
+  background-color: #a541fe;
+}
+
+.arrow-up::before {
+  content: "▲";
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.arrow-down::before {
+  content: "▼";
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.sort-buttons .arrow-up,
+.sort-buttons .arrow-up-priority {
+  content: "▲";
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.sort-buttons .arrow-down,
+.sort-buttons .arrow-down-priority {
+  content: "▼";
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.hide-finished {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.hide-finished input[type="checkbox"] {
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.hide-finished label {
+  cursor: pointer;
+}
+
+.delete-task {
+  color: #2b2b2b;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  margin-right: 10px;
+}
+
+.task-details {
+  font-weight: lighter;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
   .task-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .task-header h4 {
+    margin-bottom: 0;
+    font-size: 1.1rem;
+  }
+
+  .task-header .task-actions {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .task-description {
-    display: inline;
-    margin-right: 10px;
-  }
-
-  .details {
-    margin-top: 15px;
+    justify-content: flex-end;
+    width: 100%;
     font-size: 0.9rem;
+
   }
 
-  .content li+li {
-    margin-top: 0.5rem;
+  .task-header .task-actions button {
+    margin-right: 0;
+    margin-bottom: 5px;
   }
 
   .task-list li {
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
+    flex-direction: column;
   }
 
-  .task-list li:last-child {
-    border-bottom: none;
-  }
-
-  .task-list .task-status {
-    user-select: none;
-  }
-
-  .add-task-sidebar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 33%;
-    background-color: #fff;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-  }
-
-  .add-task {
-    padding: 7.5px 15px;
-    width: 100px;
-    background-color: #3f7ffe;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-right: 10px;
-    margin-top: 10px;
-  }
-
-  .add-task:hover {
-    background-color: #a541fe;
-  }
-
-  .rotate {
-    transform: rotate(180deg);
-  }
-
-  .task-todo-color {
-    background-color: #3f7ffe;
-    padding: 0.25rem;
-    color: white;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
-
-  .task-in-progress-color {
-    background-color: #f7b500;
-    padding: 0.25rem;
-    color: white;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
-
-  .task-finished-color {
-    background-color: #00b74a;
-    padding: 0.25rem;
-    color: white;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
-
-  .task-status {
-    margin-right: 1rem;
-    width: 100px;
-    display: inline-block;
-    white-space: nowrap;
-    text-align: center;
-  }
-
-  .sort-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .sort-buttons button {
-    padding: 5px 10px;
-    background-color: #3f7ffe;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-
-  .sort-buttons button:hover {
-    background-color: #a541fe;
-  }
-
-  .sort-buttons .active {
-    background-color: #a541fe;
-  }
-
-  .expand-buttons {
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .expand-buttons button {
-    padding: 5px 10px;
-    background-color: #3f7ffe;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-
-  .expand-buttons button:hover {
-    background-color: #a541fe;
-  }
-
-  .arrow-up::before {
-    content: "▲";
-    display: inline-block;
-    margin-left: 5px;
-  }
-
-  .arrow-down::before {
-    content: "▼";
-    display: inline-block;
-    margin-left: 5px;
-  }
-
-  .sort-buttons .arrow-up,
-  .sort-buttons .arrow-up-priority {
-    content: "▲";
-    display: inline-block;
-    margin-left: 5px;
-  }
-
-  .sort-buttons .arrow-down,
-  .sort-buttons .arrow-down-priority {
-    content: "▼";
-    display: inline-block;
-    margin-left: 5px;
-  }
-
-  .hide-finished {
-    display: flex;
-    align-items: center;
+  .task-list .task-header h4 {
     margin-bottom: 10px;
   }
 
-  .hide-finished input[type="checkbox"] {
-    margin-right: 5px;
-    cursor: pointer;
-  }
-
-  .hide-finished label {
-    cursor: pointer;
-  }
-
-  .delete-task {
-    color: #2b2b2b;
-    border: none;
-    cursor: pointer;
-    background-color: transparent;
-    margin-right: 10px;
+  .task-list .task-header img {
+    margin-top: 5px;
   }
 
   .task-details {
-    font-weight: lighter;
-    font-size: 0.9rem;
+    display: none;
   }
 
-  @media (max-width: 768px) {
-    .task-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .task-header h4 {
-      margin-bottom: 0;
-      font-size: 1.1rem;
-    }
-
-    .task-header .task-actions {
-      display: flex;
-      justify-content: flex-end;
-      width: 100%;
-      font-size: 0.9rem;
-
-    }
-
-    .task-header .task-actions button {
-      margin-right: 0;
-      margin-bottom: 5px;
-    }
-
-    .task-list li {
-      flex-direction: column;
-    }
-
-    .task-list .task-header h4 {
-      margin-bottom: 10px;
-    }
-
-    .task-list .task-header img {
-      margin-top: 5px;
-    }
-
-    .task-details {
-      display: none;
-    }
-
-    .task-description {
-      display: block;
-      margin: 0.5rem 0;
-    }
-
-    .sort-buttons {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .sort-buttons button {
-      width: 100%; /* Occupe toute la largeur disponible */
-    }
+  .task-description {
+    display: block;
+    margin: 0.5rem 0;
   }
+
+  .sort-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sort-buttons button {
+    width: 100%; /* Occupe toute la largeur disponible */
+  }
+}
 
 </style>
