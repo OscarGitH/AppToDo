@@ -336,7 +336,6 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s;
   margin-right: 10px;
-  margin-top: 10px;
 }
 
 .add-task:hover, .edit-task:hover {
