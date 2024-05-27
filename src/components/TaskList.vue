@@ -15,6 +15,7 @@
         Date de début
         <span :class="sortCriteria.startdate ? 'arrow-down' : 'arrow-up'"></span>
       </button>
+
       <button @click="sortByPriority()" :class="{ active: activeSort === 'priority' }">
         Priorité
         <span :class="sortCriteria.priority ? 'arrow-down' : 'arrow-up'"></span>
@@ -104,7 +105,6 @@ export default {
         enddate: null,
         priority: false
       },
-      activeSort: 'end-date',
       hideFinished: false // Propriété pour masquer les tâches terminées
     };
   },
@@ -114,6 +114,9 @@ export default {
     if (storedTasks) {
       this.tasks = JSON.parse(storedTasks);
     }
+    
+    // Trier les tâches par date de fin par défaut
+    this.sortByEndDate();
   },
   watch: {
     // Surveiller les changements dans les tâches et mettre à jour le stockage local
@@ -182,21 +185,22 @@ export default {
     },
     sortByEndDate() {
       this.sortCriteria.enddate = !this.sortCriteria.enddate;
-      this.sortCriteria.startdate = false;
-      this.sortCriteria.priority = false;
+      this.sortCriteria.startdate = null;
+      this.sortCriteria.priority = null;
       this.activeSort = 'end-date';
     },
     sortByStartDate() {
       this.sortCriteria.startdate = !this.sortCriteria.startdate;
-      this.sortCriteria.enddate = false;
-      this.sortCriteria.priority = false;
+      this.sortCriteria.enddate = null;
+      this.sortCriteria.priority = null;
       this.activeSort = 'start-date';
     },
 
+
     sortByPriority() {
+      this.sortCriteria.priority = !this.sortCriteria.priority;
       this.sortCriteria.startdate = null;
       this.sortCriteria.enddate = null;
-      this.sortCriteria.priority = !this.sortCriteria.priority;
       this.activeSort = 'priority';
     },
     formatDate(date) {
@@ -219,41 +223,45 @@ export default {
     }
   },
   computed: {
-    sortedTasks() {
-      let sortedTasks = [...this.tasks];
+  sortedTasks() {
+    let sortedTasks = [...this.tasks];
 
-      // Filtrer les tâches terminées si hideFinished est vrai
-      if (this.hideFinished) {
-        sortedTasks = sortedTasks.filter(task => task.status !== 'Terminée');
-      }
-
-      // Appliquer le tri
-      if (this.sortCriteria.enddate) {
-        sortedTasks.sort((a, b) => {
-          const dateA = new Date(this.sortCriteria.startdate ? a.startDate : a.endDate);
-          const dateB = new Date(this.sortCriteria.startdate ? b.startDate : b.endDate);
-          return this.sortCriteria.startdate ? dateA - dateB : dateB - dateA;
-        });
-      } else if (this.sortCriteria.startdate) {
-        sortedTasks.sort((a, b) => {
-          const dateA = new Date(this.sortCriteria.enddate ? a.endDate : a.startDate);
-          const dateB = new Date(this.sortCriteria.enddate ? b.endDate : b.startDate);
-          return this.sortCriteria.enddate ? dateA - dateB : dateB - dateA;
-        });
-      } else if (this.sortCriteria.priority) {
-        sortedTasks.sort((a, b) => {
-          const priorityOrder = {
-            'Haute': 0,
-            'Moyenne': 1,
-            'Basse': 2
-          };
-          return priorityOrder[b.priority] - priorityOrder[a.priority];
-        });
-      }
-
-      return sortedTasks;
+    // Filtrer les tâches terminées si hideFinished est vrai
+    if (this.hideFinished) {
+      sortedTasks = sortedTasks.filter(task => task.status !== 'Terminée');
     }
+
+    // Appliquer le tri
+    if (this.sortCriteria.enddate !== null) {
+      console.log('Tri par date de fin');
+      sortedTasks.sort((a, b) => {
+        const dateA = new Date(a.endDate);
+        const dateB = new Date(b.endDate);
+        return this.sortCriteria.enddate ? dateA - dateB : dateB - dateA;
+      });
+    } else if (this.sortCriteria.startdate !== null) {
+      // Tri par date de début
+      console.log('Tri par date de début');
+      sortedTasks.sort((a, b) => {
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return this.sortCriteria.startdate ? dateB - dateA : dateA - dateB;
+      });
+
+    } else if (this.sortCriteria.priority !== null) {
+      sortedTasks.sort((a, b) => {
+        const priorityOrder = {
+          'Haute': 0,
+          'Moyenne': 1,
+          'Basse': 2
+        };
+        return this.sortCriteria.priority ? priorityOrder[a.priority] - priorityOrder[b.priority] : priorityOrder[b.priority] - priorityOrder[a.priority];
+      });
+    }
+
+    return sortedTasks;
   }
+}
 };
 </script>
 
