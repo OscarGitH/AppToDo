@@ -1,43 +1,60 @@
-# To Do App
+# Application de ToDo
 
-This Vue.js To Do Application is a simple web-based tool designed to help users manage their tasks efficiently. With an intuitive interface and essential features, this application allows users to organize their tasks, set priorities, track statuses, and add notes.
+## Objectif du TP
+L’objectif des TP de la semaine 4 en client riche est de se (re)familiariser avec les formulaires et la gestion des données avec Vue.js. Le but est de créer une application web de ToDo.
 
-**Key Features:**
+## Fonctionnalités
+L'application permet de :
+- Ajouter une tâche via un formulaire
+- Supprimer une tâche via un bouton supprimer
+- Afficher la liste des tâches
+- Filtrer les tâches par état (à faire, en cours, terminé)
+- Filtrer les tâches par priorité (haute, moyenne, basse)
+- Filtrer les tâches par date de début
+- Filtrer les tâches par date de fin
 
-1. **Task Management:** Add, view, edit, and delete tasks effortlessly.
-2. **Priority Setting:** Assign priority levels to tasks for better organization.
-3. **Status Tracking:** Track the status of tasks (To-Do, In Progress, Done) to monitor progress.
-4. **Date Management:** Set start and end dates for tasks to schedule effectively.
-5. **Notes:** Add additional notes to tasks for detailed information.
-6. **Sorting and Filtering:** Sort tasks by start date, end date, or priority. Filter tasks based on status (hide completed tasks).
-7. **Responsive Design:** User-friendly interface adaptable to various screen sizes, ensuring a seamless experience across devices.
+## Informations des tâches
+Chaque tâche contient les informations suivantes :
+- Description
+- Date de début
+- Date de fin
+- État (à faire, en cours, terminé)
+- Priorité (haute, moyenne, basse)
 
-**Usage:**
+## Design
+Le design de l'application utilise le framework CSS Bootstrap. Vous pouvez utiliser un autre framework CSS de votre choix si vous le souhaitez.
 
-1. **Adding Tasks:** Click on the "Add Task" button to open the task creation form. Fill in the required details such as description, start date, end date, status, priority, and optional notes. Click "Add" to save the task.
-2. **Managing Tasks:** View existing tasks in the task list. Edit or delete tasks as needed. Change task status by clicking on the status label.
-3. **Sorting and Filtering:** Use the sort buttons to arrange tasks by start date, end date, or priority. Check the "Hide Finished" checkbox to filter out completed tasks.
-4. **Viewing Task Details:** Click on a task to view additional details such as start date, end date, and priority. Click again to collapse the details.
-5. **Responsive Design:** Access the application from desktop, tablet, or mobile devices. The interface adapts to different screen sizes for optimal usability.
+## Stockage des données
+Les données sont stockées dans le local storage du navigateur de l’utilisateur. Pour plus d'informations, vous pouvez consulter la documentation de l'API Web Storage : [Web Storage API](https://developer.mozilla.org/fr/docs/Web/API/Web_Storage_API).
 
-## Project setup
+## Compatibilité
+L'application est compatible avec les navigateurs les plus connus et est responsive pour un affichage sur ordinateur et plateforme mobile. Aucune page ne se recharge lors de l'ajout ou de la modification de tâches. 
 
-### Install dependencies (if needed)
-```
-npm install
-```
+## Installation et utilisation
 
-### Compiles and hot-reloads for development
-```
+### Prérequis
+- Node.js
+- npm (Node Package Manager) ou yarn
+
+### Installation
+1. Clonez le dépôt :
+    ```bash
+    git clone https://github.com/OscarGitH/AppToDo.git
+    cd AppToDo/to_do_app
+    ```
+
+2. Installez les dépendances :
+    ```bash
+    npm install
+    # ou
+    yarn install
+    ```
+
+### Utilisation
+Pour lancer l'application en mode développement :
+```bash
 npm run serve
+# ou
+yarn serve
 ```
-
-### Access the application through the provided URL in your browser
-```
-http://localhost:8081/
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
+Accédez à l'application via http://localhost:8081
